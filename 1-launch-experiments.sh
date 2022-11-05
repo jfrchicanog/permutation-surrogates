@@ -47,5 +47,9 @@ mkdir -p ${BINDIR}/results
 OUTDIR=${BINDIR}/results
 INSTANCE_DIR=${BINDIR}/SMTWTP_small
 
-$LAUNCHER n4.txt 
+for instance in `cat instances-to-solve.txt`; do
+	$LAUNCHER $instance
+done
+
+#$LAUNCHER n4.txt 
 

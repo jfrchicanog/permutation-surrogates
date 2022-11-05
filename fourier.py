@@ -223,8 +223,6 @@ def analysis(instance, output):
 	
 	f.close()
 
-
-
 if __name__ == '__main__':
 	from argparse import ArgumentParser,RawDescriptionHelpFormatter,_StoreTrueAction,ArgumentDefaultsHelpFormatter,Action
 	parser = ArgumentParser(description = "Permutation surrogates")
