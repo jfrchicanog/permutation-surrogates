@@ -84,13 +84,16 @@ training10=(20 400 20)
 order=(0 1 2 3 4)
 
 # Size 5
-for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
-    for ((i=0;i<${#irreps5[@]}-1;i++)); do
-        irrep=${irreps5[i]}
-        for seed in $(seq 1 10); do
-            $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} $irrep
-        done 
-    done
-done
+#for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
+#    for ((i=0;i<${#irreps5[@]}-1;i++)); do
+#        for seed in $(seq 1 10); do
+#            $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
+#        done 
+#    done
+#done
 
+instance=arp_5_11.csv
+seed=1
+i=1
+$LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
 
