@@ -7,59 +7,11 @@ import itertools
 import numpy as np
 from ast import literal_eval
 
+from smwtp import SMWTP
+
 global TOLERANCE
 
 TOLERANCE = 0.001
-
-class SMWTP:
-	times = []
-	weights = []
-	due = []
-	globalMin = None
-	globalMax = None
-	def __init__(self, file):
-		with open(file) as f:
-			lines = f.readlines()
-			n = int(lines[0])
-			for line in lines[1:]:
-				elements = line.split()
-				self.times.append(float(elements[0]))
-				self.weights.append(float(elements[1]))
-				self.due.append(float(elements[2]))
-			if n != len(self.times):
-				print("Warning: elements count does not match")
-
-	def evaluate(self, permutation):
-		t = 0
-		fit = 0
-		for i in range(len(self.times)):
-			job = permutation[i]-1
-			t = t + self.times[job]
-			if t > self.due[job]:
-				fit = fit + self.weights[job] * (t - self.due[job])
-
-		return fit
-
-	def getN(self):
-		return len(self.times)
-
-
-	def getFunction(self):
-		n = len(self.times)
-		f = Snob2.SnFunction.zero(n)
-		for permutation in itertools.permutations(range(1,n+1)):
-			val = self.evaluate(permutation)
-			f[Snob2.SnElement(permutation)]=val
-			if self.globalMin == None or val < self.globalMin:
-				self.globalMin=val
-			if self.globalMax == None or val > self.globalMax:
-				self.globalMax=val
-
-		return f
-
-	def getFourierTransform(self):
-		fft = Snob2.ClausenFFT(self.getN())
-		return fft(self.getFunction())
 
 
 class SurrogateModel:
@@ -231,44 +183,63 @@ def experiment():
 	print(fn)
 	print(instance.getFunction())
 
-if __name__ == '__main__':
-	instance = SMWTP(sys.argv[1])
-	output = sys.argv[2]
+def analysis(instance, output):
 	f = open(output, "w")
 	n = instance.getN()
-	fft = Snob2.ClausenFFT(n)
-	F = instance.getFourierTransform()
-	m = F.get_type().get_map()
 	f1 = instance.getFunction()
+
+	fft = Snob2.ClausenFFT(n)
+	F = fft(f1)
+	m = F.get_type().get_map()
 
 	#showNormalOrder(n, f1)
 	#showSortedOrder(n, f1)
 	#showPermutationRanking(n, f1)
 	#print(f'Global min: {instance.globalMin}')
 	#print(f'Global max: {instance.globalMax}')
-	print("f1")
-	showSortedOrder(n, f1)
+	#print("f1")
+	#showSortedOrder(n, f1)
 	rankingF1 = permutationRanking(n, f1)
-	print("Ranking f1")
-	showNormalOrder(n, rankingF1)
+	#print("Ranking f1")
+	#showNormalOrder(n, rankingF1)
 	f.write('Max order\tMAE\tNormalized MAE\tF1 Min\tF1 Max\tF2 Min\tF2 Max\tMAE-GO Orig\tNormalized MAE-GO Orig\tGO Orig\tMAE-GO Trunc\tNormalized MAE-GO Trunc\tGO Trunc\tRanking MAE\tPreserved GO\n')
 	for firstLine in range(0,n):
 		for irrep in m:
 			if irrep[0] == firstLine:
 				F[irrep] = Snob2.SnPart.zero(irrep, m[irrep])
 		f2 = fft.inv(F)
-		showPermutationRanking(n, f2)
+		#showPermutationRanking(n, f2)
 		val, f1Min, f1Max, f2Min, f2Max = maeMaxMin(f1, f2, F.get_n())
 		fRange = (instance.globalMax-instance.globalMin)
 		maeGOF1, globalOptimaF1, maeGOF2, globalOptimaF2, preservedGlobalOptima = maeOfGlobalOptima(f1, f2, F.get_n())
 
 		rankingF2 = permutationRanking(n, f2)
-		print("f2")
-		showSortedOrder(n, f2)
-		print("Ranking f2")
-		showSortedOrder(n,rankingF2)
+		#print("f2")
+		#showSortedOrder(n, f2)
+		#print("Ranking f2")
+		#showSortedOrder(n,rankingF2)
 		maeRanking, _, _, _, _ = maeMaxMin(rankingF1, rankingF2, n)
 		f.write(f'{n-firstLine-1}\t{val}\t{val/fRange}\t{f1Min}\t{f1Max}\t{f2Min}\t{f2Max}\t{maeGOF1}\t{maeGOF1 / fRange}\t{globalOptimaF1}\t{maeGOF2}\t{maeGOF2 / fRange}\t{globalOptimaF2}\t{maeRanking}\t{preservedGlobalOptima}\n')
 	
 	f.close()
-	
+
+
+
+if __name__ == '__main__':
+	from argparse import ArgumentParser,RawDescriptionHelpFormatter,_StoreTrueAction,ArgumentDefaultsHelpFormatter,Action
+	parser = ArgumentParser(description = "Permutation surrogates")
+	parser.add_argument('--problem', type=str, help='Problem: smwtp, samples')
+	parser.add_argument('--instance', type=str, help='instance file')
+	parser.add_argument("--output", type=str, default=None, help="output file")
+	args = parser.parse_args()
+
+	if args.problem == 'smwtp':
+		from smwtp import SMWTP
+		instance = SMWTP(args.instance)
+	elif args.problem == 'samples':
+		from functionsamples import FunctionFromSamples
+		instance = FunctionFromSamples(args.instance)
+	else:
+		raise ValueError(f'Unsupported problem: {args.problem}')
+
+	analysis(instance, args.output)
