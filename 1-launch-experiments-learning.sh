@@ -25,7 +25,7 @@ slurm_job() {
 #SBATCH --cpus-per-task=1
 
 # Amount of RAM needed for this job:
-#SBATCH --mem=2gb
+#SBATCH --mem=5gb
 
 # The time the job will be running:
 #SBATCH --time=20:00:00
@@ -42,7 +42,7 @@ slurm_job() {
 run=\$SLURM_ARRAY_TASK_ID
 randomSeed=\$run
 
-COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed ${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}-seed${randomSeed}.out"
+COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}-seed\${randomSeed}.out"
 echo \$COMMAND
 \$COMMAND
 EOF
@@ -80,17 +80,34 @@ training6=(10 720 10)
 training7=(15 1080 15)
 training8=(20 400 20)
 training9=(20 400 20)
-training10=(20 400 20)
+training10=(1 3628800 1000000)
 
 order=(0 1 2 3 4)
 
 # Size 5
-for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
-    for ((i=0;i<${#irreps5[@]};i++)); do
-        $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
+#for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
+#    for ((i=0;i<${#irreps5[@]};i++)); do
+#        $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
+#    done
+#done
+
+#OUTDIR="${BINDIR}/results/smwtp/learning"
+#INSTANCE_DIR="${BINDIR}/SMTWTP_small"
+#mkdir -p "${OUTDIR}"
+#for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
+#    for ((i=0;i<${#irreps5[@]};i++)); do
+#        $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
+#    done
+#done
+
+OUTDIR="${BINDIR}/results/smwtp/learning"
+INSTANCE_DIR="${BINDIR}/SMTWTP_small"
+mkdir -p "${OUTDIR}"
+for instance in $(find -L SMTWTP_small/ -name n10_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
+    for ((i=0;i<${#irreps10[@]};i++)); do
+        $LAUNCHER smwtp $instance ${training10[0]} ${training10[1]} ${training10[2]} ${order[i]} ${irreps10[i]}
     done
 done
-
 #instance=arp_5_11.csv
 #seed=1
 #i=1
