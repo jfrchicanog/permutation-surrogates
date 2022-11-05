@@ -6,7 +6,8 @@ set -o pipefail
 BINDIR=$(dirname "$(readlink -f "$(type -P $0 || echo $0)")")
 
 slurm_job() {
-	instance=$1
+    problem=$1
+    instance=$2
     JOBNAME=${instance}
     # FIXME: "sbatch <<EOF" should be enough
     # FC: it does not work
@@ -19,7 +20,7 @@ slurm_job() {
 #SBATCH --cpus-per-task=1
 
 # Amount of RAM needed for this job:
-#SBATCH --mem=20gb
+#SBATCH --mem=2gb
 
 # The time the job will be running:
 #SBATCH --time=20:00:00
@@ -34,22 +35,31 @@ slurm_job() {
 
 # To load some software (you can show the list with 'module avail'):
 
-echo "running: python3 fourier.py ${INSTANCE_DIR}/${instance} ${OUTDIR}/${instance}.out"
-python3 fourier.py ${INSTANCE_DIR}/${instance} ${OUTDIR}/${instance}.out
+COMMAND="python3 fourier.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --output ${OUTDIR}/${instance}.out"
+echo \$COMMAND
+\$COMMAND
 EOF
 sbatch kk.sh
 rm kk.sh
 }
 
+#nruns=1
+#LAUNCHER=slurm_job
+#mkdir -p ${BINDIR}/results
+#OUTDIR=${BINDIR}/results
+#INSTANCE_DIR=${BINDIR}/SMTWTP_small
+
+#for instance in `cat smwtp-instances-to-solve.txt`; do
+#	$LAUNCHER smwtp $instance
+#done
+
+
 nruns=1
 LAUNCHER=slurm_job
-mkdir -p ${BINDIR}/results
-OUTDIR=${BINDIR}/results
-INSTANCE_DIR=${BINDIR}/SMTWTP_small
+OUTDIR="${BINDIR}/results/arp"
+INSTANCE_DIR="${BINDIR}/arp"
+mkdir -p "${OUTDIR}"
 
-for instance in `cat instances-to-solve.txt`; do
-	$LAUNCHER $instance
+for instance in `cat arp-instances-to-solve.txt`; do
+	$LAUNCHER samples $instance
 done
-
-#$LAUNCHER n4.txt 
-
