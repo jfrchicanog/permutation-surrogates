@@ -1,6 +1,7 @@
 from Snob2 import Sn, ClausenFFT, SnElement, SnType, IntegerPartitions, SnIrrep, SnVec, SnPart
 import numpy as np
 from sklearn import linear_model
+import itertools
 
 class SurrogateModel:
 	originalFunction = None
@@ -9,6 +10,7 @@ class SurrogateModel:
 	fft = None
 	n = None
 	nfactorial = None
+	trainingSamples = None
 	def __init__(self, function, fType):
 		self.originalFunction = function
 		if (len(fType) == 0):
@@ -21,6 +23,9 @@ class SurrogateModel:
 		self.listOfIrreps = list(fType)
 		self.listOfIrreps.sort()
 		self.fft = ClausenFFT(self.n)
+
+	def resetTrainingSamples(self):
+		self.trainingSamples = [permutation for permutation in itertools.permutations(range(1, self.n + 1))]
 
 	def getCoordinates(self, permutation):
 		coordinates = list()
@@ -36,9 +41,12 @@ class SurrogateModel:
 		#self.fourierTransformCoefficients = linear_model.LinearRegression(normalize=False, fit_intercept=False)
 		coordinateList = list()
 		valuesList = list()
+		self.resetTrainingSamples()
 		np.random.seed(randomSeed)
 		for sample in range(0,samples):
-			permutation = np.random.permutation(range(1,self.n+1))
+			index = np.random.randint(sample,len(self.trainingSamples))
+			permutation = self.trainingSamples[index]
+			self.trainingSamples[sample], self.trainingSamples[index] = self.trainingSamples[index], self.trainingSamples[sample]
 			coordinateList.append(self.getCoordinates(permutation))
 			valuesList.append(self.originalFunction.evaluate(permutation))
 		self.fourierTransformCoefficients.fit(coordinateList, valuesList)

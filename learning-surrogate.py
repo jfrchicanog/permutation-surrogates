@@ -115,24 +115,26 @@ def experiment():
 	print(fn)
 	print(instance.getFunction())
 
-def learningAnalysis(instance, training, irreps, output):
+def learningAnalysis(instance, trainingStart, trainingEnd, trainingIncrement, randomSeed, irreps, output):
 	sm = SurrogateModel(instance, irreps)
-	sm.train(training)
-
 	f = open(output, "w")
 
 	n = instance.getN()
 	f1 = instance.getFunction()
-	f.write('MAE\tNormalized MAE\tF1 Min\tF1 Max\tF2 Min\tF2 Max\tMAE-GO Orig\tNormalized MAE-GO Orig\tGO Orig\tMAE-GO Trunc\tNormalized MAE-GO Trunc\tGO Trunc\tRanking MAE\tPreserved GO\n')
-	f2=sm.getFunction()
-	val, f1Min, f1Max, f2Min, f2Max = maeMaxMin(f1, f2, n)
-	fRange = (instance.globalMax-instance.globalMin)
-	maeGOF1, globalOptimaF1, maeGOF2, globalOptimaF2, preservedGlobalOptima = maeOfGlobalOptima(f1, f2, n)
+	f.write('Samples\tMAE\tNormalized MAE\tF1 Min\tF1 Max\tF2 Min\tF2 Max\tMAE-GO Orig\tNormalized MAE-GO Orig\tGO Orig\tMAE-GO Trunc\tNormalized MAE-GO Trunc\tGO Trunc\tRanking MAE\tPreserved GO\n')
 
-	rankingF2 = permutationRanking(n, f2)
-	rankingF1 = permutationRanking(n, f1)
-	maeRanking, _, _, _, _ = maeMaxMin(rankingF1, rankingF2, n)
-	f.write(f'{val}\t{val/fRange}\t{f1Min}\t{f1Max}\t{f2Min}\t{f2Max}\t{maeGOF1}\t{maeGOF1 / fRange}\t{globalOptimaF1}\t{maeGOF2}\t{maeGOF2 / fRange}\t{globalOptimaF2}\t{maeRanking}\t{preservedGlobalOptima}\n')
+	for training in range(trainingStart, trainingEnd, trainingIncrement):
+		sm.train(training, randomSeed=randomSeed)
+		f2=sm.getFunction()
+		val, f1Min, f1Max, f2Min, f2Max = maeMaxMin(f1, f2, n)
+		fRange = (instance.globalMax-instance.globalMin)
+		maeGOF1, globalOptimaF1, maeGOF2, globalOptimaF2, preservedGlobalOptima = maeOfGlobalOptima(f1, f2, n)
+
+		rankingF2 = permutationRanking(n, f2)
+		rankingF1 = permutationRanking(n, f1)
+		maeRanking, _, _, _, _ = maeMaxMin(rankingF1, rankingF2, n)
+		f.write(f'{training}\t{val}\t{val/fRange}\t{f1Min}\t{f1Max}\t{f2Min}\t{f2Max}\t{maeGOF1}\t{maeGOF1 / fRange}\t{globalOptimaF1}\t{maeGOF2}\t{maeGOF2 / fRange}\t{globalOptimaF2}\t{maeRanking}\t{preservedGlobalOptima}\n')
+
 	f.close()
 
 if __name__ == '__main__':
@@ -140,7 +142,10 @@ if __name__ == '__main__':
 	parser = ArgumentParser(description = "Permutation surrogates")
 	parser.add_argument('--problem', type=str, help='Problem: smwtp, samples')
 	parser.add_argument('--instance', type=str, help='instance file')
-	parser.add_argument('--training', type=int, help='number of training samples')
+	parser.add_argument('--trainingStart', type=int, help='initial value for the number of training samples')
+	parser.add_argument('--trainingEnd', type=int, help='final value for the number of training samples')
+	parser.add_argument('--trainingIncrement', type=int, help='increment value for the number of training samples')
+	parser.add_argument('--randomSeed', type=int, help='random seed used in the sorting of training samples')
 	parser.add_argument('--irreps', type=str, help='irreps to learn')
 	parser.add_argument("--output", type=str, default=None, help="output file")
 	args = parser.parse_args()
@@ -155,4 +160,4 @@ if __name__ == '__main__':
 		raise ValueError(f'Unsupported problem: {args.problem}')
 
 	irreps = [Snob2.SnIrrep(e) for e in literal_eval(args.irreps)]
-	learningAnalysis(instance, args.training, irreps, args.output)
+	learningAnalysis(instance, args.trainingStart, args.trainingEnd, args.trainingIncrement, args.randomSeed, irreps, args.output)
