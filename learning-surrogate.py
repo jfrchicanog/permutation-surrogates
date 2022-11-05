@@ -159,5 +159,7 @@ if __name__ == '__main__':
 	else:
 		raise ValueError(f'Unsupported problem: {args.problem}')
 
-	irreps = [Snob2.SnIrrep(e) for e in literal_eval(args.irreps)]
-	learningAnalysis(instance, args.trainingStart, args.trainingEnd, args.trainingIncrement, args.randomSeed, irreps, args.output)
+        irreps = [Snob2.SnIrrep(e) for e in literal_eval(args.irreps)]
+        learningAnalysis(instance, args.trainingStart, args.trainingEnd, args.trainingIncrement, args.randomSeed, irreps, args.output)
+
+
