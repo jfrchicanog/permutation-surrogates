@@ -91,23 +91,23 @@ order=(0 1 2 3 4)
 #    done
 #done
 
-#OUTDIR="${BINDIR}/results/smwtp/learning"
-#INSTANCE_DIR="${BINDIR}/SMTWTP_small"
-#mkdir -p "${OUTDIR}"
-#for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
-#    for ((i=0;i<${#irreps5[@]};i++)); do
-#        $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
-#    done
-#done
-
 OUTDIR="${BINDIR}/results/smwtp/learning"
 INSTANCE_DIR="${BINDIR}/SMTWTP_small"
 mkdir -p "${OUTDIR}"
-for instance in $(find -L SMTWTP_small/ -name n10_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
-    for ((i=0;i<${#irreps10[@]};i++)); do
-        $LAUNCHER smwtp $instance ${training10[0]} ${training10[1]} ${training10[2]} ${order[i]} ${irreps10[i]}
+for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
+    for ((i=0;i<${#irreps5[@]};i++)); do
+        $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
     done
 done
+
+#OUTDIR="${BINDIR}/results/smwtp/learning"
+#INSTANCE_DIR="${BINDIR}/SMTWTP_small"
+#mkdir -p "${OUTDIR}"
+#for instance in $(find -L SMTWTP_small/ -name n10_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
+#    for ((i=0;i<${#irreps10[@]};i++)); do
+#        $LAUNCHER smwtp $instance ${training10[0]} ${training10[1]} ${training10[2]} ${order[i]} ${irreps10[i]}
+#    done
+#done
 #instance=arp_5_11.csv
 #seed=1
 #i=1
