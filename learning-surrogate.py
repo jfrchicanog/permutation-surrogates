@@ -118,7 +118,6 @@ def experiment():
 def learningAnalysis(instance, trainingStart, trainingEnd, trainingIncrement, randomSeed, irreps, output):
     sm = SurrogateModel(instance, irreps)
     f = open(output, "w")
-
     n = instance.getN()
     f1 = instance.getFunction()
     f.write('Samples\tMAE\tNormalized MAE\tF1 Min\tF1 Max\tF2 Min\tF2 Max\tMAE-GO Orig\tNormalized MAE-GO Orig\tGO Orig\tMAE-GO Trunc\tNormalized MAE-GO Trunc\tGO Trunc\tRanking MAE\tPreserved GO\n')
@@ -159,7 +158,7 @@ if __name__ == '__main__':
     else:
         raise ValueError(f'Unsupported problem: {args.problem}')
 
-        irreps = [Snob2.SnIrrep(e) for e in literal_eval(args.irreps)]
-        learningAnalysis(instance, args.trainingStart, args.trainingEnd, args.trainingIncrement, args.randomSeed, irreps, args.output)
+    irreps = [Snob2.SnIrrep(e) for e in literal_eval(args.irreps)]
+    learningAnalysis(instance, args.trainingStart, args.trainingEnd, args.trainingIncrement, args.randomSeed, irreps, args.output)
 
 
