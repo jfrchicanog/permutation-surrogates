@@ -11,10 +11,9 @@ slurm_job() {
     trainingStart=$3
     trainingEnd=$4
     trainingIncrement=$5
-    randomSeed=$6
-    order=$7
-    irreps=$8
-    JOBNAME=${problem}-${instance}-seed${randomSeed}-${order}
+    order=$6
+    irreps=$7
+    JOBNAME=${problem}-${instance}-${order}
     # FIXME: "sbatch <<EOF" should be enough
     # FC: it does not work
     cat <<EOF > kk.sh
@@ -40,8 +39,10 @@ slurm_job() {
 #SBATCH --output=$OUTDIR/${JOBNAME}_%J.stdout
 
 # To load some software (you can show the list with 'module avail'):
+run=\$SLURM_ARRAY_TASK_ID
+randomSeed=\$run
 
-COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed ${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}.out"
+COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed ${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}-seed${randomSeed}.out"
 echo \$COMMAND
 \$COMMAND
 EOF
@@ -60,7 +61,7 @@ rm kk.sh
 #done
 
 
-nruns=1
+nruns=10
 LAUNCHER=slurm_job
 OUTDIR="${BINDIR}/results/arp/learning"
 INSTANCE_DIR="${BINDIR}/arp"
@@ -85,10 +86,8 @@ order=(0 1 2 3 4)
 
 # Size 5
 for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
-    for ((i=0;i<${#irreps5[@]}-1;i++)); do
-        for seed in $(seq 1 10); do
-            $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
-        done 
+    for ((i=0;i<${#irreps5[@]};i++)); do
+        $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
     done
 done
 
