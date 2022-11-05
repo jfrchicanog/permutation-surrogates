@@ -11,10 +11,9 @@ slurm_job() {
     trainingStart=$3
     trainingEnd=$4
     trainingIncrement=$5
-    randomSeed=$5
     order=$6
     irreps=$7
-    JOBNAME=${problem}-${instance}-seed${randomSeed}-${order}
+    JOBNAME=${problem}-${instance}-${order}
     # FIXME: "sbatch <<EOF" should be enough
     # FC: it does not work
     cat <<EOF > kk.sh
@@ -40,8 +39,10 @@ slurm_job() {
 #SBATCH --output=$OUTDIR/${JOBNAME}_%J.stdout
 
 # To load some software (you can show the list with 'module avail'):
+run=\$SLURM_ARRAY_TASK_ID
+randomSeed=\$run
 
-COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed ${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}.out"
+COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed ${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}-seed${randomSeed}.out"
 echo \$COMMAND
 \$COMMAND
 EOF
@@ -60,7 +61,7 @@ rm kk.sh
 #done
 
 
-nruns=1
+nruns=10
 LAUNCHER=slurm_job
 OUTDIR="${BINDIR}/results/arp/learning"
 INSTANCE_DIR="${BINDIR}/arp"
@@ -74,7 +75,7 @@ irreps9=('[9]' '[9],[8,1]' '[9],[8,1],[7,2],[7,1,1]' '[9],[8,1],[7,2],[7,1,1],[6
 irreps10=('[10]' '[10],[9,1]' '[10],[9,1],[8,2],[8,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1],[6,4],[6,3,1],[6,2,2],[6,2,1,1],[6,1,1,1,1]')
 
 
-training5=(5 120 5)
+training5=(1 120 1)
 training6=(10 720 10)
 training7=(15 1080 15)
 training8=(20 400 20)
@@ -84,16 +85,14 @@ training10=(20 400 20)
 order=(0 1 2 3 4)
 
 # Size 5
-#for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
-#    for ((i=0;i<${#irreps5[@]}-1;i++)); do
-#        for seed in $(seq 1 10); do
-#            $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
-#        done 
-#    done
-#done
+for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
+    for ((i=0;i<${#irreps5[@]};i++)); do
+        $LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
+    done
+done
 
-instance=arp_5_11.csv
-seed=1
-i=1
-$LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
+#instance=arp_5_11.csv
+#seed=1
+#i=1
+#$LAUNCHER samples $instance ${training5[0]} ${training5[1]} ${training5[2]} $seed ${order[i]} ${irreps5[i]}
 
