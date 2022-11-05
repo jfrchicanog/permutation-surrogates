@@ -37,8 +37,13 @@ class SurrogateModel:
 		return coordinates
 
 	def train(self, samples, randomSeed=0):
-		self.fourierTransformCoefficients = linear_model.Lars(n_nonzero_coefs=np.inf, normalize=False, fit_intercept=False)
-		#self.fourierTransformCoefficients = linear_model.LinearRegression(normalize=False, fit_intercept=False)
+		#self.fourierTransformCoefficients = linear_model.Ridge(alpha=0.000001,fit_intercept=False)
+		self.fourierTransformCoefficients = linear_model.Lasso(alpha=0.000001,fit_intercept=False)
+		#self.fourierTransformCoefficients = linear_model.LassoCV(fit_intercept=False)
+		#self.fourierTransformCoefficients = linear_model.LassoLarsCV(fit_intercept=False)
+		#self.fourierTransformCoefficients = linear_model.RidgeCV(fit_intercept=False,alphas=np.logspace(-8,-3,13))
+		#self.fourierTransformCoefficients = linear_model.Lars(n_nonzero_coefs=np.inf, normalize=False, fit_intercept=False)
+		#self.fourierTransformCoefficients = linear_model.LinearRegression(fit_intercept=False)
 		coordinateList = list()
 		valuesList = list()
 		self.resetTrainingSamples()
