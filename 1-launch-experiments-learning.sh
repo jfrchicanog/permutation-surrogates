@@ -11,9 +11,7 @@ slurm_job() {
     trainingStart=$3
     trainingEnd=$4
     trainingIncrement=$5
-    order=$6
-    irreps=$7
-    JOBNAME=${problem}-${instance}-${order}
+    JOBNAME=${problem}-${instance}
     # FIXME: "sbatch <<EOF" should be enough
     # FC: it does not work
     cat <<EOF > kk.sh
@@ -42,11 +40,17 @@ slurm_job() {
 run=\$SLURM_ARRAY_TASK_ID
 randomSeed=\$run
 
-COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps $irreps --output ${OUTDIR}/${JOBNAME}-seed\${randomSeed}.out"
-echo \$COMMAND
-\$COMMAND
+irreps=(${irreps[@]{})
+orders=(${orders[@]})
+
+for ((i=0;i<\${#irreps[@]};i++)); do
+    COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps \${irreps[i]} --output ${OUTDIR}/${JOBNAME}-order\${orders[i]}-seed\${randomSeed}.out"
+    echo "running: " \$COMMAND
+    \$COMMAND
+done
+
 EOF
-sbatch kk.sh
+echo kk.sh
 rm kk.sh
 }
 
@@ -94,10 +98,10 @@ order=(0 1 2 3 4)
 OUTDIR="${BINDIR}/results/smwtp/learning"
 INSTANCE_DIR="${BINDIR}/SMTWTP_small"
 mkdir -p "${OUTDIR}"
-for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed\* -printf %f\\n); do 
-    for ((i=0;i<${#irreps5[@]};i++)); do
-        $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]} ${order[i]} ${irreps5[i]}
-    done
+orders=(${order[@]})
+irreps=(${irreps5[@]})
+for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed2\* -printf %f\\n); do 
+    $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]}
 done
 
 #OUTDIR="${BINDIR}/results/smwtp/learning"
