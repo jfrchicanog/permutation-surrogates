@@ -122,7 +122,7 @@ def learningAnalysis(instance, trainingStart, trainingEnd, trainingIncrement, ra
     f1 = instance.getFunction()
     f.write('Samples\tMAE\tNormalized MAE\tF1 Min\tF1 Max\tF2 Min\tF2 Max\tMAE-GO Orig\tNormalized MAE-GO Orig\tGO Orig\tMAE-GO Trunc\tNormalized MAE-GO Trunc\tGO Trunc\tRanking MAE\tPreserved GO\n')
 
-    for training in range(trainingStart, trainingEnd, trainingIncrement):
+    for training in range(trainingStart, trainingEnd+1, trainingIncrement):
         sm.train(training, randomSeed=randomSeed)
         f2=sm.getFunction()
         val, f1Min, f1Max, f2Min, f2Max = maeMaxMin(f1, f2, n)
