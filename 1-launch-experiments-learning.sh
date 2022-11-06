@@ -40,17 +40,17 @@ slurm_job() {
 run=\$SLURM_ARRAY_TASK_ID
 randomSeed=\$run
 
-irreps=(${irreps[@]{})
+irreps=(${irreps[@]})
 orders=(${orders[@]})
 
 for ((i=0;i<\${#irreps[@]};i++)); do
-    COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps \${irreps[i]} --output ${OUTDIR}/${JOBNAME}-order\${orders[i]}-seed\${randomSeed}.out"
+    COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps \${irreps[i]} --output ${OUTDIR}/${JOBNAME}-order\${orders[i]}-seed\${randomSeed}-f${date}.out"
     echo "running: " \$COMMAND
     \$COMMAND
 done
 
 EOF
-echo kk.sh
+sbatch kk.sh
 rm kk.sh
 }
 
@@ -100,6 +100,9 @@ INSTANCE_DIR="${BINDIR}/SMTWTP_small"
 mkdir -p "${OUTDIR}"
 orders=(${order[@]})
 irreps=(${irreps5[@]})
+
+date=$(date +%d%m%Y)
+
 for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed2\* -printf %f\\n); do 
     $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]}
 done
