@@ -128,7 +128,7 @@ if [ "$debug" == 'debug' ]; then
 fi
 
 if [ "$problem" == 'smwtp' ]; then
-    launchMWTP $size
+    launchSMWTP $size
 elif [ "$problem" == 'arp' ]; then
     launchARP $size
 else
