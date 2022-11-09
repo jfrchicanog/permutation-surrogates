@@ -117,9 +117,14 @@ launchSMWTP() {
 
 problem=$1
 size=$2
+debug=$3
 date=$(date +%d%m%Y-%H%M%S)
 nruns=10
 LAUNCHER=slurm_job
+
+if [ "$debug" == 'debug' ];
+    LAUNCHER=echo
+fi
 
 if [ "$problem" == 'smwtp' ];
     launchMWTP $size
