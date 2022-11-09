@@ -23,7 +23,7 @@ slurm_job() {
 #SBATCH --cpus-per-task=1
 
 # Amount of RAM needed for this job:
-#SBATCH --mem=5gb
+#SBATCH --mem=20gb
 
 # The time the job will be running:
 #SBATCH --time=20:00:00
@@ -77,16 +77,19 @@ irreps7=('[7]' '[7],[6,1]' '[7],[6,1],[5,2],[5,1,1]' '[7],[6,1],[5,2],[5,1,1],[4
 irreps8=('[8]' '[8],[7,1]' '[8],[7,1],[6,2],[6,1,1]' '[8],[7,1],[6,2],[6,1,1],[5,3],[5,2,1],[5,1,1,1]' '[8],[7,1],[6,2],[6,1,1],[5,3],[5,2,1],[5,1,1,1],[4,4],[4,3,1],[4,2,2],[4,2,1,1],[4,1,1,1,1]')
 irreps9=('[9]' '[9],[8,1]' '[9],[8,1],[7,2],[7,1,1]' '[9],[8,1],[7,2],[7,1,1],[6,3],[6,2,1],[6,1,1,1]' '[9],[8,1],[7,2],[7,1,1],[6,3],[6,2,1],[6,1,1,1],[5,4],[5,3,1],[5,2,2],[5,2,1,1],[5,1,1,1,1]')
 irreps10=('[10]' '[10],[9,1]' '[10],[9,1],[8,2],[8,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1],[6,4],[6,3,1],[6,2,2],[6,2,1,1],[6,1,1,1,1]')
+irreps10=('[10],[9,1],[8,2],[8,1,1],[7,3]')
 
 
 training5=(1 120 1)
 training6=(10 720 10)
 training7=(15 1080 15)
-training8=(20 400 20)
-training9=(20 400 20)
-training10=(1 3628800 1000000)
+training8=(100 7000 100)
+training9=(100 7000 100)
+training10=(36288 108864 36288)
 
 order=(0 1 2 3 4)
+
+#order=(3.1)
 
 # Size 5
 #for instance in $(find -L arp -name arp_5_\* -printf %f\\n); do 
@@ -99,12 +102,12 @@ OUTDIR="${BINDIR}/results/smwtp/learning"
 INSTANCE_DIR="${BINDIR}/SMTWTP_small"
 mkdir -p "${OUTDIR}"
 orders=(${order[@]})
-irreps=(${irreps5[@]})
+irreps=(${irreps9[@]})
 
-date=$(date +%d%m%Y)
+date=$(date +%d%m%Y-%H%M%S)
 
-for instance in $(find -L SMTWTP_small/ -name n5_rdd0.8_tf0.2_seed2\* -printf %f\\n); do 
-    $LAUNCHER smwtp $instance ${training5[0]} ${training5[1]} ${training5[2]}
+for instance in $(find -L SMTWTP_small/ -name n9_rdd0.8_tf0.2_seed4* -printf %f\\n); do 
+    $LAUNCHER smwtp $instance ${training9[0]} ${training9[1]} ${training9[2]}
 done
 
 #OUTDIR="${BINDIR}/results/smwtp/learning"
