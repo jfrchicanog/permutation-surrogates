@@ -133,6 +133,7 @@ def learningAnalysis(instance, trainingStart, trainingEnd, trainingIncrement, ra
         rankingF1 = permutationRanking(n, f1)
         maeRanking, _, _, _, _ = maeMaxMin(rankingF1, rankingF2, n)
         f.write(f'{training}\t{val}\t{val/fRange}\t{f1Min}\t{f1Max}\t{f2Min}\t{f2Max}\t{maeGOF1}\t{maeGOF1 / fRange}\t{globalOptimaF1}\t{maeGOF2}\t{maeGOF2 / fRange}\t{globalOptimaF2}\t{maeRanking}\t{preservedGlobalOptima}\n')
+        f.flush()
 
     f.close()
 

@@ -23,7 +23,7 @@ slurm_job() {
 #SBATCH --cpus-per-task=1
 
 # Amount of RAM needed for this job:
-#SBATCH --mem=5gb
+#SBATCH --mem=15gb
 
 # The time the job will be running:
 #SBATCH --time=24:00:00
@@ -44,7 +44,7 @@ irreps=(${irreps[@]})
 orders=(${orders[@]})
 
 for ((i=0;i<\${#orders[@]};i++)); do
-    COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps \${irreps[i]} --output ${OUTDIR}/${JOBNAME}-job${SLURM_JOB_ID}-order\${orders[i]}-seed\${randomSeed}-f${date}.out"
+    COMMAND="python3 learning-surrogate.py --problem $problem --instance ${INSTANCE_DIR}/${instance} --trainingStart ${trainingStart} --trainingEnd ${trainingEnd} --trainingIncrement ${trainingIncrement} --randomSeed \${randomSeed} --irreps \${irreps[i]} --output ${OUTDIR}/${JOBNAME}-job\${SLURM_JOB_ID}-order\${orders[i]}-seed\${randomSeed}-f${date}.out"
     echo "running: " \$COMMAND " at \$SLURM_JOB_NODELIST"
     \$COMMAND
 done
@@ -78,8 +78,10 @@ configureSize() {
         orders=(0 1 2)
         training=(32 3200 32)
     elif [ "$size" == 10 ]; then
-        irreps=('[10]' '[10],[9,1]' '[10],[9,1],[8,2],[8,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1],[6,4],[6,3,1],[6,2,2],[6,2,1,1],[6,1,1,1,1]')
-        orders=(0 1 2)
+        #irreps=('[10]' '[10],[9,1]' '[10],[9,1],[8,2],[8,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1],[6,4],[6,3,1],[6,2,2],[6,2,1,1],[6,1,1,1,1]')
+        irreps=('[10],[9,1],[8,2],[8,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1]' '[10],[9,1],[8,2],[8,1,1],[7,3],[7,2,1],[7,1,1,1],[6,4],[6,3,1],[6,2,2],[6,2,1,1],[6,1,1,1,1]')
+        #orders=(0 1 2)
+        orders=(2)
         training=(52 3640 52)
     else
         echo "Invalid size ${size}"
