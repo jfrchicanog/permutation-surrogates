@@ -45,9 +45,9 @@ rm kk.sh
 
 #nruns=1
 #LAUNCHER=slurm_job
-#mkdir -p ${BINDIR}/results
-#OUTDIR=${BINDIR}/results
-#INSTANCE_DIR=${BINDIR}/SMTWTP_small
+#mkdir -p ${BINDIR}/results/smtwtp
+#OUTDIR=${BINDIR}/results/smtwtp
+#INSTANCE_DIR=${BINDIR}/smtwtp
 
 #for instance in `cat smwtp-instances-to-solve.txt`; do
 #	$LAUNCHER smwtp $instance
